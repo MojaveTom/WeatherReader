@@ -1,0 +1,71 @@
+#
+#    Notes.txt -- Notes about this project that are useful to have around.
+#    Copyright (C) 2017  Thomas A. DeMay
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 3 of the License, or
+#    any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License along
+#    with this program; if not, write to the Free Software Foundation, Inc.,
+#    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+/*! Custom Process Steps: */
++----------+------------------------------------------------------------------+--------------+
+| Command  | Arguments                                                        | Working Dir  |
++==========+==================================================================+==============+
+| bash     | GetArchiveTag.sh                                                 | %{sourceDir} |
++----------+------------------------------------------------------------------+--------------+
+| bash     | "%{sourceDir}/DoLink.sh" "%{CurrentProject:Name}" "%{sourceDir}" | %{buildDir}  |
++----------+------------------------------------------------------------------+--------------+
+
+GetArchiveTag.sh is a shell script to get the Git archive tag and put it into ArchiveTag.txt
+DoLink.sh is a shell script to put a link to the executable in the source directory.
+
+# Shell script to create SQL to set the timezone to local STANDARD time for the location
+# of the machine running the script.
+
+# get the timezone offset for jan 1 at midnight -- will always be local standard time.
+standardTimeZoneOffset=$(date -j 01010000 +%z)
+# get the length not including the last two characters
+szend=$(( ${#standardTimeZoneOffset} - 2 ))
+# Break the time zone offset string into hour and minute segments
+stzHour=${standardTimeZoneOffset:0:$szend}
+stzMin=${standardTimeZoneOffset:$szend}
+# if the hour part has neither a "-" nor "+" at the begin, prepend "+".
+if [ "${stzHour#-}" = "${stzHour}" ] && [ "${stzHour#+}" = "${stzHour}" ]; then stzHour="+${stzHour}"; fi
+# glue the two parts of tz offset together to form SQL statement to set time zone.
+setTimeZone="SET time_zone='${stzHour}:${stzMin}';"
+
+Information about changing to and from Daylight Savings Time in the UnitedStates/Pacific timezone.
+
+Year	Date & Time             Abbreviation	Time Change             Offset After
+2014	Sun, Mar 9, 2:00 AM	PST → PDT	+1 hour (DST start)	UTC-7h
+        Sun, Nov 2, 2:00 AM	PDT → PST	-1 hour (DST end)	UTC-8h
+2015	Sun, Mar 8, 2:00 AM	PST → PDT	+1 hour (DST start)	UTC-7h
+        Sun, Nov 1, 2:00 AM	PDT → PST	-1 hour (DST end)	UTC-8h
+2016	Sun, Mar 13, 2:00 AM	PST → PDT	+1 hour (DST start)	UTC-7h
+        Sun, Nov 6, 2:00 AM	PDT → PST	-1 hour (DST end)	UTC-8h
+2017	Sun, Mar 12, 2:00 AM	PST → PDT	+1 hour (DST start)	UTC-7h
+        Sun, Nov 5, 2:00 AM	PDT → PST	-1 hour (DST end)	UTC-8h
+2018	Sun, Mar 11, 2:00 AM	PST → PDT	+1 hour (DST start)	UTC-7h
+        Sun, Nov 4, 2:00 AM	PDT → PST	-1 hour (DST end)	UTC-8h
+* All times are local Los Angeles time.
+
+SQL to extract records from the DebugInfo table starting from 2310 yesterday.
+SELECT Time
+, RIGHT(ArchiveTag,8) as TAG    /* Only show 8 characters of the ArchiveTag */
+, Severity
+, SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(FunctionName, '::', -1), '(', 1), ' ', -1) as Function /* Display just the function name. */
+, SourceLineNo as Line
+, LEFT(REPLACE(REPLACE(Message,'\r','\\r'),'\n','\\n'), 240)  /* Only show first 240 chars of message, replacing \r and \n with "\r" and "\n" */
+ FROM DebugInfo WHERE Time > TIMESTAMPADD(MINUTE, -50, DATE(NOW()))      /* 50 minutes before midnight today. */
+ /* AND ArchiveTag LIKE 'notset' */ /* To see only program starts. */
+;
