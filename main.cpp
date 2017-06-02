@@ -44,10 +44,12 @@ int main(int argc, char *argv[])
      */
     QCommandLineParser parser;
     parser.setApplicationDescription("\nWeather\n"
-                                     "     Program to read data from the weather station and store in database.");
+                                     "     Program to read data from the weather station, store in database, and publish to MQTT.");
     parser.addHelpOption();
 
     QCommandLineOption serialDeviceOption(QStringList() << "s" << "serial-name", "The name of the serial device. [cu.SLAB_USBtoUART]", "Name", "cu.SLAB_USBtoUART");
+    QCommandLineOption mqttWeatherTopic(QStringList() << "t" << "weather-topic", "The MQTT topic for weather data.", "Path", "demay_farm/Weather");
+    QCommandLineOption mqttStatusTopic(QStringList() << "T" << "status-topic", "The MQTT topic for program status messages.", "Path", "demay_farm/Weather/Status");
     QCommandLineOption databaseOption(QStringList() << "d" << "database", "Database id string.", "URL"
                                       , env.value("DatabaseProgramAccess", "").remove(QChar('"')));
     QCommandLineOption debugDatabaseOption(QStringList() << "B" << "debug-database", "Database id string for debug info.", "URL"
@@ -59,6 +61,8 @@ int main(int argc, char *argv[])
     QCommandLineOption dontWriteDatabaseOption(QStringList() << "W" << "dont-write"
                                                   , "If specified, don't actually write to the database.");
     parser.addOption(serialDeviceOption);
+    parser.addOption(mqttWeatherTopic);
+    parser.addOption(mqttStatusTopic);
     parser.addOption(databaseOption);
     parser.addOption(debugDatabaseOption);
     parser.addOption(showDiagnosticsOption);
@@ -78,6 +82,12 @@ int main(int argc, char *argv[])
 
     QString serialDevice = parser.value(serialDeviceOption);
     qDebug() << "Using serial device" << serialDevice;
+
+    MQTT_WEATHER_TOPIC = parser.value(mqttWeatherTopic);
+    qInfo() << "MQTT_WEATHER_TOPIC" << MQTT_WEATHER_TOPIC;
+
+    MQTT_STATUS_TOPIC = parser.value(mqttStatusTopic);
+    qInfo() << "MQTT_STATUS_TOPIC" << MQTT_STATUS_TOPIC;
 
     QString databaseConnString = parser.value(databaseOption);
     qDebug() << "Using database connection string: " << databaseConnString;
@@ -100,12 +110,12 @@ int main(int argc, char *argv[])
     }
 
     //    qInfo() << "Available time zones are:  " << QTimeZone::availableTimeZoneIds();
-//    ReadWeather w(serialDevice);
-//    if (w.connected())
-//    {
-//        w.show();
-//        return a.exec();
-//    }
+    ReadWeather w(serialDevice);
+    if (w.connected())
+    {
+        w.show();
+        return a.exec();
+    }
     qCritical() << "ReadWeather failed to connect.";
     DumpDebugInfo();
     qInfo() << "Return" << -1;
