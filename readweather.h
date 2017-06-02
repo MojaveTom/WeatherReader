@@ -8,7 +8,8 @@
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtSql>
 #include <qmqtt/qmqtt.h>
-extern const QString MQTT_TOPIC;
+extern QString MQTT_WEATHER_TOPIC;
+extern QString MQTT_STATUS_TOPIC;
 extern const qint8   MQTT_QoS_AT_MOST_ONCE;
 extern const qint8   MQTT_QoS_AT_LEAST_ONCE;
 extern const qint8   MQTT_QoS_EXACTLY_ONCE;

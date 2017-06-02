@@ -8,8 +8,8 @@
 #include "CCITT.H"
 #include "../SupportRoutines/supportfunctions.h"
 
-const QString MQTT_WEATHER_TOPIC = "demay_farm/Weather";
-const QString MQTT_STATUS_TOPIC = "demay_farm/Weather/Status";
+QString MQTT_WEATHER_TOPIC = "demay_farm/Weather";
+QString MQTT_STATUS_TOPIC = "demay_farm/Weather/Status";
 const qint8   MQTT_QoS_AT_MOST_ONCE  = 0;
 const qint8   MQTT_QoS_AT_LEAST_ONCE = 1;
 const qint8   MQTT_QoS_EXACTLY_ONCE  = 2;
@@ -1034,70 +1034,76 @@ void ReadWeather::interpretLoopData()
 
     /*  Publish the weather data to the MQTT Broker in JSON format.   */
 
-//    QString pubWeatherData(QString("{ \"Time\": \"%1\", \"Barometer\": %2, \"InsideTemp\": %3, \"InsideHumidity\": %4")
-//                           .arg(latestReadingDayTimeStringUTC)
-//                           .arg(barometer)
-//                           .arg(insideTemp)
-//                           .arg(insideHumidity)
-//                           );
-//    pubWeatherData.append(QString(", \"OutsideTemp\": "));
-//    pubWeatherData.append(outsideTemp < 3276.0 ? QString("%1").arg(outsideTemp) : "null");
-//    pubWeatherData.append(QString(", \"OutsideHumidity\": "));
-//    pubWeatherData.append(outsideHumidity < 254.0 ? QString("%1").arg(outsideHumidity) : "null");
-//    pubWeatherData.append(QString(", \"WindSpeed\": "));
-//    pubWeatherData.append(windSpeed < 254.0 ? QString("%1").arg(windSpeed) : "null");
-//    pubWeatherData.append(QString(", \"AveWindSpeed\": "));
-//    pubWeatherData.append(avgWindSpeed < 254.0 ? QString("%1").arg(avgWindSpeed) : "null");
-//    pubWeatherData.append(QString(", \"WindDir\": "));
-//    pubWeatherData.append(windDir < 32760.0 ? QString("%1").arg(windDir) : "null");
-//    pubWeatherData.append(QString(", \"RainRate\": "));
-//    pubWeatherData.append(rainRate < 655.0 ? QString("%1").arg(rainRate) : "null");
-//    pubWeatherData.append(QString(", \"UVIndex\": "));
-//    pubWeatherData.append(UVindex < 254.0 ? QString("%1").arg(UVindex) : "null");
-//    pubWeatherData.append(QString(", \"SolarRad\": "));
-//    pubWeatherData.append(solarRadiation < 32760.0 ? QString("%1").arg(solarRadiation) : "null");
-//    pubWeatherData.append(QString(", \"StormRain\": %1, \"DayRain\": %2, \"MonthRain\": %3, \"YearRain\": %4")
-//                          .arg(stormRain).arg(dayRain).arg(monthRain).arg(yearRain));
-//    pubWeatherData.append(QString(", \"StormStart\": "));
-//    if (stormStart == 0xFFFFL)
-//        pubWeatherData.append("null");
-//    else
-//        pubWeatherData.append(QString("\"%1-%2-%3\"").arg(stormStartYear).arg(stormStartMonth).arg(stormStartDay));
-//    pubWeatherData.append(QString(", \"ConsoleBatteryVolts\": %1, \"Forecast\": \"%2\""
-//                                  ", \"BarometerTrend\": \"%3\", \"XmitBattStat\": %4, \"DayET\": %5")
-//                          .arg(consoleBatteryVolts)
-//                          .arg(forecast)
-//                          .arg(barTrend)
-//                          .arg(xmitBattStat)
-//                          .arg(dayET)
-//                          );
-//    pubWeatherData.append("}");
-//    publisher.publishMsg(pubWeatherData, MQTT_WEATHER_TOPIC);
+//    {     // This block constructs the JSON document "manually".
+//        QString pubWeatherData(QString("{ \"Time\": \"%1\", \"Barometer\": %2, \"InsideTemp\": %3, \"InsideHumidity\": %4")
+//                               .arg(latestReadingDayTimeStringUTC)
+//                               .arg(barometer)
+//                               .arg(insideTemp)
+//                               .arg(insideHumidity)
+//                               );
+//        pubWeatherData.append(QString(", \"OutsideTemp\": "));
+//        pubWeatherData.append(outsideTemp < 3276.0 ? QString("%1").arg(outsideTemp) : "null");
+//        pubWeatherData.append(QString(", \"OutsideHumidity\": "));
+//        pubWeatherData.append(outsideHumidity < 254.0 ? QString("%1").arg(outsideHumidity) : "null");
+//        pubWeatherData.append(QString(", \"WindSpeed\": "));
+//        pubWeatherData.append(windSpeed < 254.0 ? QString("%1").arg(windSpeed) : "null");
+//        pubWeatherData.append(QString(", \"AveWindSpeed\": "));
+//        pubWeatherData.append(avgWindSpeed < 254.0 ? QString("%1").arg(avgWindSpeed) : "null");
+//        pubWeatherData.append(QString(", \"WindDir\": "));
+//        pubWeatherData.append(windDir < 32760.0 ? QString("%1").arg(windDir) : "null");
+//        pubWeatherData.append(QString(", \"RainRate\": "));
+//        pubWeatherData.append(rainRate < 655.0 ? QString("%1").arg(rainRate) : "null");
+//        pubWeatherData.append(QString(", \"UVIndex\": "));
+//        pubWeatherData.append(UVindex < 254.0 ? QString("%1").arg(UVindex) : "null");
+//        pubWeatherData.append(QString(", \"SolarRad\": "));
+//        pubWeatherData.append(solarRadiation < 32760.0 ? QString("%1").arg(solarRadiation) : "null");
+//        pubWeatherData.append(QString(", \"StormRain\": %1, \"DayRain\": %2, \"MonthRain\": %3, \"YearRain\": %4")
+//                              .arg(stormRain).arg(dayRain).arg(monthRain).arg(yearRain));
+//        pubWeatherData.append(QString(", \"StormStart\": "));
+//        if (stormStart == 0xFFFFL)
+//            pubWeatherData.append("null");
+//        else
+//            pubWeatherData.append(QString("\"%1-%2-%3\"").arg(stormStartYear).arg(stormStartMonth).arg(stormStartDay));
+//        pubWeatherData.append(QString(", \"ConsoleBatteryVolts\": %1, \"Forecast\": \"%2\""
+//                                      ", \"BarometerTrend\": \"%3\", \"XmitBattStat\": %4, \"DayET\": %5")
+//                              .arg(consoleBatteryVolts)
+//                              .arg(forecast)
+//                              .arg(barTrend)
+//                              .arg(xmitBattStat)
+//                              .arg(dayET)
+//                              );
+//        pubWeatherData.append("}");
+//        publisher.publishMsg(pubWeatherData, MQTT_WEATHER_TOPIC);
+//    }
 
-    QVariantMap qvmWeatherData;
-    qvmWeatherData["Time"] = QVariant(latestReadingDayTimeStringUTC);
-    qvmWeatherData["Barometer"] = QVariant(barometer);
-    qvmWeatherData["InsideTemp"] = QVariant(insideTemp);
-    qvmWeatherData["InsideHumidity"] = QVariant(insideHumidity);
-    qvmWeatherData["OutsideTemp"] = outsideTemp < 3276.0 ? QVariant(outsideTemp) : QVariant("null");
-    qvmWeatherData["OutsideHumidity"] = outsideHumidity < 254.0 ? QVariant(outsideHumidity) : QVariant("null");
-    qvmWeatherData["WindSpeed"] = windSpeed < 254.0 ? QVariant(windSpeed) : QVariant("null");
-    qvmWeatherData["AveWindSpeed"] = avgWindSpeed < 254.0 ? QVariant(avgWindSpeed) : QVariant("null");
-    qvmWeatherData["WindDir"] = windDir < 32760.0 ? QVariant(windDir) : QVariant("null");
-    qvmWeatherData["RainRate"] = rainRate < 655.0 ? QVariant(rainRate) : QVariant("null");
-    qvmWeatherData["UVIndex"] = UVindex < 254.0 ? QVariant(UVindex) : QVariant("null");
-    qvmWeatherData["SolarRad"] = solarRadiation < 32760.0 ? QVariant(solarRadiation) : QVariant("null");
-    qvmWeatherData["StormStart"] = stormStart != 0xFFFFL ? QVariant(QString("\"%1-%2-%3\"").arg(stormStartYear).arg(stormStartMonth).arg(stormStartDay)) : QVariant("null");
-    qvmWeatherData["StormRain"] = QVariant(stormRain);
-    qvmWeatherData["DayRain"] = QVariant(dayRain);
-    qvmWeatherData["MonthRain"] = QVariant(monthRain);
-    qvmWeatherData["YearRain"] = QVariant(yearRain);
-    qvmWeatherData["ConsoleBatteryVolts"] = QVariant(consoleBatteryVolts);
-    qvmWeatherData["Forecast"] = QVariant(forecast);
-    qvmWeatherData["BarometerTrend"] = QVariant(barTrend);
-    qvmWeatherData["XmitBattStat"] = QVariant(xmitBattStat);
-    qvmWeatherData["DayET"] = QVariant(dayET);
-    publisher.publishMsg(QString(QJsonDocument::fromVariant(qvmWeatherData).toJson(QJsonDocument::Compact)) , MQTT_WEATHER_TOPIC);
+    {       // This block constructs JSON using QT's QJsonDocument class.
+        QVariantMap qvmWeatherData;
+        qvmWeatherData["Time"] = QVariant(latestReadingDayTimeStringUTC);
+        qvmWeatherData["Barometer"] = QVariant(barometer);
+        qvmWeatherData["InsideTemp"] = QVariant(insideTemp);
+        qvmWeatherData["InsideHumidity"] = QVariant(insideHumidity);
+        qvmWeatherData["OutsideTemp"] = outsideTemp < 3276.0 ? QVariant(outsideTemp) : QVariant("null");
+        qvmWeatherData["OutsideHumidity"] = outsideHumidity < 254.0 ? QVariant(outsideHumidity) : QVariant("null");
+        qvmWeatherData["WindSpeed"] = windSpeed < 254.0 ? QVariant(windSpeed) : QVariant("null");
+        qvmWeatherData["AveWindSpeed"] = avgWindSpeed < 254.0 ? QVariant(avgWindSpeed) : QVariant("null");
+        qvmWeatherData["WindDir"] = windDir < 32760.0 ? QVariant(windDir) : QVariant("null");
+        qvmWeatherData["RainRate"] = rainRate < 655.0 ? QVariant(rainRate) : QVariant("null");
+        qvmWeatherData["UVIndex"] = UVindex < 254.0 ? QVariant(UVindex) : QVariant("null");
+        qvmWeatherData["SolarRad"] = solarRadiation < 32760.0 ? QVariant(solarRadiation) : QVariant("null");
+        qvmWeatherData["StormStart"] = stormStart != 0xFFFFL ? QVariant(QString("\"%1-%2-%3\"").arg(stormStartYear).arg(stormStartMonth).arg(stormStartDay)) : QVariant("null");
+        qvmWeatherData["StormRain"] = QVariant(stormRain);
+        qvmWeatherData["DayRain"] = QVariant(dayRain);
+        qvmWeatherData["MonthRain"] = QVariant(monthRain);
+        qvmWeatherData["YearRain"] = QVariant(yearRain);
+        qvmWeatherData["ConsoleBatteryVolts"] = QVariant(consoleBatteryVolts);
+        qvmWeatherData["Forecast"] = QVariant(forecast);
+        qvmWeatherData["BarometerTrend"] = QVariant(barTrend);
+        qvmWeatherData["XmitBattStat"] = QVariant(xmitBattStat);
+        qvmWeatherData["DayET"] = QVariant(dayET);
+        publisher.publishMsg(QString(QJsonDocument::fromVariant(qvmWeatherData)
+                                     .toJson(QJsonDocument::Compact))
+                             , MQTT_WEATHER_TOPIC);
+    }
 
     publisher.publishMsg(QString("%1 inside %2deg %3\% outside %4deg %5\% baro %6inHg ave wind %7mph")
                                .arg(QDateTime::currentDateTime().toString("M/d/yy HH:mm:ss"))
