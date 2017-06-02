@@ -113,8 +113,10 @@ int main(int argc, char *argv[])
     ReadWeather w(serialDevice);
     if (w.connected())
     {
-        w.show();
-        return a.exec();
+        int retVal = a.exec();  // Process event loop till quit called.
+        DumpDebugInfo();
+        qInfo("Normal termination, Returning %d", retVal);
+        return retVal;
     }
     qCritical() << "ReadWeather failed to connect.";
     DumpDebugInfo();
