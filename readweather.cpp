@@ -362,7 +362,6 @@ ReadWeather::ReadWeather(QString &_SerialDeviceName, QObject *parent) :
     receiveTimer = new QTimer(this);
     connect(receiveTimer, SIGNAL(timeout()), this, SLOT(receiveTimeout()));
     receiveTimer->setSingleShot(true);
-
     if (reconnectWxSerial())
     {
         resyncWx();
@@ -1967,8 +1966,10 @@ void ReadWeather::stopReadingData()
     receiveTimer->stop();
     wxPort->close();
     publisher.closeConnection();
-    qDebug() << ("Weather modem closed.");
-    qInfo("Return");
+    qInfo("Weather modem closed.");
+    qInfo("MQTT publisher closed.");
+    qInfo("Quitting whole program.");
+    QCoreApplication::quit();
 }
 
 void ReadWeather::getArchiveFromTime(const QDateTime firstTime, const QDateTime lastTime)

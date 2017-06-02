@@ -71,6 +71,8 @@ public slots:
     void wxDataReady();
     void receiveTimeout();
 
+private slots:
+
 private:
     void stopReadingData();
     QSerialPort *wxPort;
