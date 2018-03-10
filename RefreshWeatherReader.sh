@@ -54,10 +54,25 @@ fi
 # sleep for 10 seconds
 sleep 10
 
+## if there is an "at" job scheduled for this program, remove it before starting another.
+for j in $(at -l | cut -f1)  # get a list of pids for my "at" jobs.
+do
+  # The last lines of the script restart it; extract the file name from the script.
+  jobFile=$(at -c $j | tail -n4 | grep 'at -f.*.sh' | sed -E s/'at -f(.*sh ).*/\1/')
+  if [ -n "$jobFile" ]      # ignore empty jobFiles
+  then
+    if [ $jobFile = ${0##*/} ]      # if the file name from the "at" script matches us
+    then                            # remove it from the list
+#      echo "$jobFile is pid $j"
+      at -r $j
+    fi
+  fi
+done
+
 # restart WeatherReader program
 ####   MAKE SURE THERE IS A LINK TO THE WeatherReader EXECUTABLE
 #### WHERE THIS SCRIPT EXPECTS IT TO BE.
 $PWD/WeatherReader &
 
 # Reschedule this script to run at 2325 tomorrow.
-at -fRefreshWeatherReader.sh 2325 >/dev/null 2>&1
+at -fRefreshWeatherReader.sh 2325 >/dev/null 2>$1
